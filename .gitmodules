@@ -1,0 +1,3 @@
+[submodule "libs/zig-tflite"]
+	path = libs/zig-tflite
+	url = https://github.com/mattn/zig-tflite

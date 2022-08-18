@@ -1,6 +1,7 @@
 # Zig-TFlite-MNIST
 
 MNIST by Zig x TFLite
+![スクリーンショット 2022-08-18 16 43 04](https://user-images.githubusercontent.com/1560508/185437509-0afdc96b-03ef-4fc1-8a87-88d6c2f1d361.png)
 
 Tested on
 - Machine: Mac Mini 2021

@@ -1,6 +1,6 @@
 # Zig-TFlite-MNIST
 
-MNIST by Zig x TFLite
+MNIST with Zig x Tensorflow Lite
 ![スクリーンショット 2022-08-18 16 43 04](https://user-images.githubusercontent.com/1560508/185437509-0afdc96b-03ef-4fc1-8a87-88d6c2f1d361.png)
 
 Tested on
@@ -12,14 +12,14 @@ Tested on
 
 ## How to execute
 
-At first, you should download MNIST data in png format from [here](https://www.kaggle.com/datasets/jidhumohan/mnist-png).
+At first, download MNIST data in png format from [here](https://www.kaggle.com/datasets/jidhumohan/mnist-png).
 
 Then, install TFLite. You can read how to build TFLite from [here](https://github.com/mattn/zig-tflite#tensorflow-installation).
 
 Finally, execute the commands below:
 
 ```sh
-git clone https://github.com/ryoppippi/nyancat.zig
+git clone https://github.com/ryoppippi/zig-tflite-mnist
 zig build -Drelease-safe=true
 ./zig-out/bin/zig-tflite-mnist
 ```

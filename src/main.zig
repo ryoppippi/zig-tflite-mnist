@@ -2,11 +2,32 @@ const std = @import("std");
 const tflite = @import("zig-tflite");
 const c = @import("c.zig");
 
-const img_size = 28;
-
 const model_data = @embedFile("../notebook/model.tflite");
 
 pub fn main() !void {
+    var m = try tflite.modelFromData(model_data);
+    defer m.deinit();
+
+    var o = try tflite.interpreterOptions();
+    defer o.deinit();
+
+    var i = try tflite.interpreter(m, o);
+    defer i.deinit();
+
+    try i.allocateTensors();
+
+    var inputTensor = i.inputTensor(0);
+    var outputTensor = i.outputTensor(0);
+
+    var input = inputTensor.data(f32);
+    var output = outputTensor.data(f32);
+
+    var buffer: [100]u8 = undefined;
+    const shape = try inputTensor.shape(std.heap.FixedBufferAllocator.init(buffer[0..]).allocator());
+    const img_size = std.math.sqrt(@intCast(u32, shape.items[1]));
+    shape.deinit();
+
+    // load img
     var args = try std.process.argsWithAllocator(std.heap.page_allocator);
     defer args.deinit();
     const prog = args.next();
@@ -25,32 +46,12 @@ pub fn main() !void {
         std.os.exit(1);
     }
 
-    const resized_size = img_size * img_size;
-    var resized_img: [resized_size]f32 = undefined;
-    const resize_result = c.stbir_resize_float(img_data, x, y, 0, @ptrCast([*]f32, &resized_img), img_size, img_size, 0, n);
+    const resize_result = c.stbir_resize_float(img_data, x, y, 0, @ptrCast([*]f32, input), img_size, img_size, 0, n);
     if (resize_result != 1) {
         std.log.err("resize img failed", .{});
         std.os.exit(1);
     }
 
-    var m = try tflite.modelFromData(model_data);
-    defer m.deinit();
-
-    var o = try tflite.interpreterOptions();
-    defer o.deinit();
-
-    var i = try tflite.interpreter(m, o);
-    defer i.deinit();
-
-    try i.allocateTensors();
-
-    var inputTensor = i.inputTensor(0);
-    var outputTensor = i.outputTensor(0);
-
-    var input = inputTensor.data(f32);
-    var output = outputTensor.data(f32);
-
-    for (input) |*t, index| t.* = resized_img[index];
     try i.invoke();
     var writer = std.io.getStdOut().writer();
     var result = std.sort.argMax(f32, output, {}, comptime std.sort.asc(f32)) orelse unreachable;

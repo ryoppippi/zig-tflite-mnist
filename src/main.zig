@@ -2,7 +2,7 @@ const std = @import("std");
 const tflite = @import("zig-tflite");
 const c = @import("c.zig");
 
-const model_data = @embedFile("../notebook/model.tflite");
+const model_data = @embedFile("models/model.tflite");
 
 pub fn main() !void {
     var m = try tflite.modelFromData(model_data);
@@ -23,7 +23,8 @@ pub fn main() !void {
     var output = outputTensor.data(f32);
 
     var buffer: [100]u8 = undefined;
-    const shape = try inputTensor.shape(std.heap.FixedBufferAllocator.init(buffer[0..]).allocator());
+    var fba = std.heap.FixedBufferAllocator.init(buffer[0..]);
+    const shape = try inputTensor.shape(fba.allocator());
     const img_size = std.math.sqrt(@intCast(u32, shape.items[1]));
     shape.deinit();
 
@@ -31,7 +32,7 @@ pub fn main() !void {
     var args = try std.process.argsWithAllocator(std.heap.page_allocator);
     defer args.deinit();
     const prog = args.next();
-    const img_path: [:0]const u8 = args.next() orelse {
+    const img_path = args.next() orelse {
         std.log.err("usage: {s} [filename]", .{prog.?});
         std.os.exit(1);
     };
@@ -39,7 +40,7 @@ pub fn main() !void {
     var x: c_int = undefined;
     var y: c_int = undefined;
     var n: c_int = undefined;
-    var img_data = c.stbi_loadf(img_path, &x, &y, &n, c.STBI_grey);
+    var img_data = c.stbi_loadf(@ptrCast([*]u8, img_path), &x, &y, &n, c.STBI_grey);
     defer c.stbi_image_free(img_data);
     if (img_data == null) {
         std.log.err("image file {s} not found", .{img_path});

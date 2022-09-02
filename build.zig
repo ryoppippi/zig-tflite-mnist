@@ -2,8 +2,6 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn build(b: *std.build.Builder) void {
-    ensureSubmodules(b.allocator) catch |err| @panic(@errorName(err));
-
     const target = b.standardTargetOptions(.{});
     const mode = b.standardReleaseOptions();
 
@@ -11,6 +9,7 @@ pub fn build(b: *std.build.Builder) void {
     exe.setTarget(target);
     exe.setBuildMode(mode);
     addPkgs(exe);
+    exe.step.dependOn(&b.addSystemCommand(&.{ "git", "submodule", "update", "--init", "--recursive" }).step);
     exe.install();
 
     const run_cmd = exe.run();
@@ -48,17 +47,6 @@ var tflitePkg = std.build.Pkg{
     .name = "zig-tflite",
     .source = std.build.FileSource{ .path = "libs/zig-tflite/src/main.zig" },
 };
-
-fn ensureSubmodules(allocator: std.mem.Allocator) !void {
-    if (std.process.getEnvVarOwned(allocator, "NO_ENSURE_SUBMODULES")) |no_ensure_submodules| {
-        if (std.mem.eql(u8, no_ensure_submodules, "true")) return;
-    } else |_| {}
-    var child = std.ChildProcess.init(&.{ "git", "submodule", "update", "--init", "--recursive" }, allocator);
-    child.cwd = thisDir();
-    child.stderr = std.io.getStdErr();
-    child.stdout = std.io.getStdOut();
-    _ = try child.spawnAndWait();
-}
 
 inline fn thisDir() []const u8 {
     return comptime std.fs.path.dirname(@src().file) orelse ".";

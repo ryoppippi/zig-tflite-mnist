@@ -40,7 +40,7 @@ pub fn main() !void {
     var x: c_int = undefined;
     var y: c_int = undefined;
     var n: c_int = undefined;
-    var img_data = c.stbi_loadf(@ptrCast([*]u8, img_path), &x, &y, &n, c.STBI_grey);
+    var img_data = c.stbi_loadf(@ptrCast([*]const u8, img_path), &x, &y, &n, c.STBI_grey);
     defer c.stbi_image_free(img_data);
     if (img_data == null) {
         std.log.err("image file {s} not found", .{img_path});

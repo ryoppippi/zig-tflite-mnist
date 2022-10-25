@@ -32,7 +32,7 @@ pub fn build(b: *std.build.Builder) void {
 fn addPkgs(exe: *std.build.LibExeObjStep) void {
     // add tflite
     if (builtin.os.tag != .windows) {
-        exe.addIncludeDir("/usr/local/include");
+        exe.addIncludePath("/usr/local/include");
         exe.addLibraryPath("/usr/local/lib");
     }
     exe.linkSystemLibrary("tensorflowlite_c");
@@ -40,7 +40,7 @@ fn addPkgs(exe: *std.build.LibExeObjStep) void {
     exe.addPackage(tflitePkg);
 
     // add stb
-    exe.addIncludeDir("libs/stb");
+    exe.addIncludePath("libs/stb");
 }
 
 var tflitePkg = std.build.Pkg{

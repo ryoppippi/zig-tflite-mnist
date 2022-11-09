@@ -8,6 +8,7 @@ pub fn build(b: *std.build.Builder) void {
     const exe = b.addExecutable("zig-tflite-mnist", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
+    exe.use_stage1 = true;
     addPkgs(exe);
     exe.step.dependOn(&b.addSystemCommand(&.{ "git", "submodule", "update", "--init", "--recursive" }).step);
     exe.install();
@@ -47,7 +48,3 @@ var tflitePkg = std.build.Pkg{
     .name = "zig-tflite",
     .source = std.build.FileSource{ .path = "libs/zig-tflite/src/main.zig" },
 };
-
-inline fn thisDir() []const u8 {
-    return comptime std.fs.path.dirname(@src().file) orelse ".";
-}

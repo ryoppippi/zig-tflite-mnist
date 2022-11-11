@@ -25,6 +25,8 @@ pub fn build(b: *std.build.Builder) void {
     const exe_tests = b.addTest("src/main.zig");
     exe_tests.setTarget(target);
     exe_tests.setBuildMode(mode);
+    exe_tests.use_stage1 = true;
+    addPkgs(exe_tests);
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&exe_tests.step);
@@ -48,3 +50,7 @@ var tflitePkg = std.build.Pkg{
     .name = "zig-tflite",
     .source = std.build.FileSource{ .path = "libs/zig-tflite/src/main.zig" },
 };
+
+inline fn thisDir() []const u8 {
+    return comptime std.fs.path.dirname(@src().file) orelse ".";
+}

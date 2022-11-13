@@ -44,11 +44,20 @@ fn addPkgs(exe: *std.build.LibExeObjStep) void {
 
     // add stb
     exe.addIncludePath("libs/stb");
+
+    // add mallocz
+    exe.addIncludePath("libs/mallocz/src");
+    exe.addPackage(malloczPkg);
 }
 
-var tflitePkg = std.build.Pkg{
+const tflitePkg = std.build.Pkg{
     .name = "zig-tflite",
     .source = std.build.FileSource{ .path = "libs/zig-tflite/src/main.zig" },
+};
+
+const malloczPkg = std.build.Pkg{
+    .name = "mallocz",
+    .source = std.build.FileSource{ .path = "libs/mallocz/src/main.zig" },
 };
 
 inline fn thisDir() []const u8 {

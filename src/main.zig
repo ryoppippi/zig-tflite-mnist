@@ -1,6 +1,6 @@
 const std = @import("std");
-const ma = @import("malloc.zig");
 const tflite = @import("zig-tflite");
+const ma = @import("mallocz");
 const stb = @import("c.zig");
 
 const model_data = @embedFile("models/model.tflite");
@@ -20,8 +20,8 @@ pub fn main() !void {
 }
 
 pub fn mainI(img_path: []const u8, allocator: std.mem.Allocator) !void {
-    ma.init(allocator);
-    defer ma.deinit(.{});
+    ma.init(.{ .allocator = allocator });
+    defer ma.deinit();
 
     var m = try tflite.modelFromData(model_data);
     defer m.deinit();
